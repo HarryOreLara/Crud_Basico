@@ -11,7 +11,7 @@ final registerFormProvier =
 });
 
 class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
-  final Function(String, String, String) registerUserCalback;
+  final Function(String, String, String, String) registerUserCalback;
 
   RegisterFormNotifier({required this.registerUserCalback})
       : super(RegisterFormState());
@@ -35,7 +35,7 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
   onPasswordTwoChange(String value) {
     final newPasswordTwo = Password.dirty(value);
     state = state.copyWith(
-        password: newPasswordTwo,
+        passwordTwo: newPasswordTwo,
         isValid: Formz.validate(
             [newPasswordTwo, state.password, state.email, state.fullName]));
   }
@@ -50,9 +50,13 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
 
   onFormSubmit() async {
     _touchEveryField();
-    if (!state.isValid) return;
-    await registerUserCalback(
-        state.email.value, state.password.value, state.fullName.value);
+    if (!state.isValid || !arePasswordsEqual()) return;
+    await registerUserCalback(state.email.value, state.password.value,
+        state.passwordTwo.value, state.fullName.value);
+  }
+
+  bool arePasswordsEqual() {
+    return state.password.value == state.passwordTwo.value;
   }
 
   _touchEveryField() {
